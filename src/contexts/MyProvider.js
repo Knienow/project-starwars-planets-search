@@ -1,25 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import MyContext from './MyContext';
 
 function Provider({ children }) {
   // criando o estado da app
   const [data, setData] = useState([]);
-  const url = 'https://swapi.dev/api/planets';
+  const [filterByName, setFilterByName] = useState('');
+  const [filterByNameResult, setFilterByNameResult] = useState([]);
 
-  // chamada da API
+  const getReturnAPI = async () => {
+    const fetchAPI = await fetch('https://swapi.dev/api/planets');
+    const { results } = await fetchAPI.json();
+    setData(results);
+  };
+
   useEffect(() => {
-    const getReturnAPI = async () => {
-      const fetchAPI = await fetch(url);
-      const { results } = await fetchAPI.json();
-      setData(results);
-    };
+  // chamada da API através da callback
     getReturnAPI();
   }, []);
+  // array de dependências vazio para que a API seja chamada somente uma vez
+
+  const valuesContext = useMemo(() => ({
+    data,
+    filterByName,
+    setFilterByName,
+    filterByNameResult,
+    setFilterByNameResult,
+  }), [data, filterByName, setFilterByName, filterByNameResult, setFilterByNameResult]);
 
   return (
-    <MyContext.Provider value={ { data } }>
-      { children }
+    <MyContext.Provider value={ valuesContext }>
+      {children}
     </MyContext.Provider>
   );
 }

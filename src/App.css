@@ -1,3 +1,11 @@
+body {
+  animation: gradient 15s ease infinite;
+  background: linear-gradient(-45deg, #020202, #1d1d1d, #393a3b, #7d7d7d);
+  background-size: 400% 400%;
+  color: white;
+  height: 100vh;
+}
+
 .App {
   text-align: center;
 }
@@ -37,5 +45,20 @@
 
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes gradient {
+
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
   }
 }
