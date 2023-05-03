@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import MyContext from '../contexts/MyContext';
 
 function Table() {
-  const { data, filterByName } = useContext(MyContext);
+  const { filterByName, filterByNumbers } = useContext(MyContext);
   return (
     <table>
       <thead>
@@ -23,8 +23,7 @@ function Table() {
         </tr>
       </thead>
       <tbody>
-        { console.log(data) }
-        {data
+        {filterByNumbers
           .filter((planet) => planet.name.toLowerCase()
             .includes(filterByName))
           .map((planet) => (
