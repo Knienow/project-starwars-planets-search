@@ -5,25 +5,20 @@ import MyContext from './MyContext';
 function Provider({ children }) {
   // criando o estado da app
   const [data, setData] = useState([]);
-  const [filterByName, setFilterByName] = useState('');
-  const [filterByNameResult, setFilterByNameResult] = useState([]);
-  const [filterByNumbers, setFilterByNumbers] = useState([]);
+  const [filterData, setFilterData] = useState([]);
+  // valores iniciais dos selects de valores numéricos
   const [filterState, setFilterState] = useState(
-    [
-    // valores iniciais
-      {
-        column: 'population',
-        comparison: 'maior que',
-        value: 0,
-      },
-    ],
+    {
+      kind: '',
+      appliedFilters: [],
+    },
   );
 
   const getReturnAPI = async () => {
     const fetchAPI = await fetch('https://swapi.dev/api/planets');
     const { results } = await fetchAPI.json();
     setData(results);
-    setFilterByNumbers(results);
+    setFilterData(results);
   };
 
   useEffect(() => {
@@ -34,22 +29,14 @@ function Provider({ children }) {
 
   const valuesContext = useMemo(() => ({
     data,
-    filterByName,
-    setFilterByName,
-    filterByNameResult,
-    setFilterByNameResult,
-    filterByNumbers,
-    setFilterByNumbers,
+    filterData,
+    setFilterData,
     filterState,
     setFilterState,
   }), [
     data,
-    filterByName,
-    setFilterByName,
-    filterByNameResult,
-    setFilterByNameResult,
-    filterByNumbers,
-    setFilterByNumbers,
+    filterData,
+    setFilterData,
     filterState,
     setFilterState,
   ]);

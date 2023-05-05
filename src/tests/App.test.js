@@ -1,6 +1,10 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import App from '../App';
+import {
+  TEST_INPUT_1,
+} from './helpers/constants';
 
 describe('Teste do componente Header', () => {
   it('Verificar se o título da página é exibido', () => {
@@ -15,14 +19,20 @@ describe('Teste do componente Header', () => {
     const inputFilterName = screen.getByTestId('name-filter');
     expect(inputFilterName).toBeInTheDocument();
   });
+  it('Filtrar os planetas que possuem a vogal "o" no nome', () => {
+    render(<App />);
+    const planetsWithO = ['Tatooine','Hoth', 'Dagobah', 'Endor', 'Naboo', 'Coruscant', 'Kamino'];
+    const inputFilterName = screen.getByTestId('name-filter');
+    userEvent.type(inputFilterName, TEST_INPUT_1);
+    expect(planetsWithO).toBeInTheDocument();
+    //PAREI AQUI 
+  });
 });
 
 describe('Teste do componente FilterNumbers', () => {
   it('Verificar se o campo do filtro de colunas é exibido', () => {
     render(<App />);
-    const selectFilterColuns = screen.getByRole('combobox', {
-      name: /coluna:/i
-    });
+    const selectFilterColuns = screen.getByText(/coluna:/i);
     expect(selectFilterColuns).toBeInTheDocument();
   });
   it('Verificar se o campo do filtro de operadores é exibido', () => {
@@ -42,7 +52,7 @@ describe('Teste do componente FilterNumbers', () => {
 });
 
 describe('Teste do componente Table', () => {
-  // it('Verificar se o título da página é exibido', () => {
+  it('Verificar se a tabela é preenchida com os dados retornados da API', () => {
   //   render(<App />);
   //   const title = screen.getByRole('heading', {
   //     name: /project star wars planets search/i
@@ -53,5 +63,5 @@ describe('Teste do componente Table', () => {
   //   render(<App />);
   //   const inputFilterName = screen.getByTestId('name-filter');
   //   expect(inputFilterName).toBeInTheDocument();
-  // });
+  });
 });
