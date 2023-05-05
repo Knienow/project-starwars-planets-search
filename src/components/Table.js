@@ -92,6 +92,11 @@ function Table() {
     applyFilter();
   };
 
+  const removeThatFilter = () => {
+    // não está funcionando - pesquisar mais sobre como remover o item do array
+    filterState.appliedFilters.splice(0, 1);
+  };
+
   return (
     <div>
       <header>
@@ -148,6 +153,35 @@ function Table() {
       >
         Filtrar
       </button>
+      <button
+        data-testid="button-remove-filters"
+        type="button"
+        // onClick={ removeAllFilters }
+      >
+        Remover filtros
+      </button>
+      <div>
+        {filterState.appliedFilters.map((item) => (
+          // RENDERIZAR O ARRAY DE appliedFilters AQUI COM OS BUTTONS PARA EXCLUIR
+          // melhorar essa lógica - está substituindo ao invés de formar uma lista de filtros aplicados
+          <p
+            data-testid="filter"
+            key={ item.attribute }
+          >
+            { item.attribute }
+            {' '}
+            { item.condition }
+            {' '}
+            { item.value }
+            <button
+              type="delete"
+              onClick={ removeThatFilter }
+            >
+              X
+            </button>
+          </p>
+        ))}
+      </div>
       <table>
         <thead>
           <tr>
