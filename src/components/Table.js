@@ -2,21 +2,10 @@ import React, { useContext, useState, useRef } from 'react';
 import MyContext from '../contexts/MyContext';
 
 function Table() {
-  const {
-    data,
-    filterData,
-    setFilterData,
-    filterState,
-    // setFilterState,
-  } = useContext(MyContext);
+  const { data, filterData, setFilterData, filterState } = useContext(MyContext);
 
-  const [attributes, setAttributes] = useState([
-    'population',
-    'orbital_period',
-    'diameter',
-    'rotation_period',
-    'surface_water',
-  ]);
+  const [attributes, setAttributes] = useState(['population', 'orbital_period',
+    'diameter', 'rotation_period', 'surface_water']);
 
   const conditions = (planet, shouldAdd) => {
     const lessOne = -1;
@@ -95,7 +84,6 @@ function Table() {
     setAttributes(tmpSetAttributes);
   };
 
-  // botão de remover aquele filtro do array appliedFilters
   const deleteAppliedFilter = (attributeName) => {
     const tmpFilters = [...filterState.appliedFilters];
     if (tmpFilters.length > 0) {
@@ -108,7 +96,33 @@ function Table() {
     return true;
   };
 
-  // botão de remover todos os filtros
+  const sortAsc = (tmpData, attribute, lessOne) => tmpData.sort((a, b) => {
+    const x = Number.isNaN(Number(a[attribute]))
+      ? Number.POSITIVE_INFINITY : Number(a[attribute]);
+    const y = Number.isNaN(Number(b[attribute]))
+      ? Number.POSITIVE_INFINITY : Number(b[attribute]);
+    return x < y ? lessOne : 1;
+  });
+
+  const sortDesc = (tmpData, attribute, lessOne) => tmpData.sort((a, b) => {
+    const x = Number.isNaN(Number(a[attribute]))
+      ? Number.NEGATIVE_INFINITY : Number(a[attribute]);
+    const y = Number.isNaN(Number(b[attribute]))
+      ? Number.NEGATIVE_INFINITY : Number(b[attribute]);
+    return x < y ? 1 : lessOne;
+  });
+
+  const filterAscDesc = (attribute, order) => {
+    let tmpData = [...filterData];
+    const lessOne = -1;
+    if (order === 'ASC') {
+      tmpData = sortAsc(tmpData, attribute, lessOne);
+    } else if (order === 'DESC') {
+      tmpData = sortDesc(tmpData, attribute, lessOne);
+    }
+    setFilterData(tmpData);
+  };
+
   const removeAllFilters = () => {
     const tmpAttributes = filterState.appliedFilters.map((filter) => filter.attribute);
     const tmpSetAttributes = [...attributes];
@@ -117,6 +131,13 @@ function Table() {
     filterState.appliedFilters = [];
     applyFilter();
   };
+
+  const setSortOrder = (order) => {
+    filterState.sortOrder = order;
+    return true;
+  };
+
+  const sortAttributeRef = useRef(null);
 
   return (
     <div>
@@ -138,10 +159,7 @@ function Table() {
           name="column"
         >
           {attributes.map((columnTable) => (
-            <option
-              key={ columnTable }
-              value={ columnTable }
-            >
+            <option key={ columnTable } value={ columnTable }>
               { columnTable }
             </option>
           ))}
@@ -167,11 +185,7 @@ function Table() {
         data-testid="value-filter"
         defaultValue={ 0 }
       />
-      <button
-        type="button"
-        data-testid="button-filter"
-        onClick={ handleClick }
-      >
+      <button type="button" data-testid="button-filter" onClick={ handleClick }>
         Filtrar
       </button>
       <button
@@ -181,12 +195,58 @@ function Table() {
       >
         Remover filtros
       </button>
+      <label htmlFor="">
+        Ordenar:
+        <select
+          data-testid="column-sort"
+          ref={ sortAttributeRef }
+          className="dropbtnsort"
+          name="column-sort"
+        >
+          {attributes.map((columnSort) => (
+            <option key={ columnSort } value={ columnSort }>
+              { columnSort }
+            </option>
+          ))}
+        </select>
+      </label>
+      <div>
+        <input
+          type="radio"
+          data-testid="column-sort-input-asc"
+          name="ad"
+          value="ASC"
+          onChange={ (event) => {
+            setSortOrder('ASC');
+            console.log(event);
+          } }
+        />
+        Ascendente
+        <input
+          type="radio"
+          data-testid="column-sort-input-desc"
+          name="ad"
+          value="DESC"
+          onChange={ (event) => {
+            setSortOrder('DESC');
+            console.log(event);
+          } }
+        />
+        Descendente
+      </div>
+      <button
+        type="button"
+        data-testid="column-sort-button"
+        onClick={ (event) => {
+          filterAscDesc(sortAttributeRef.current.value, filterState.sortOrder);
+          event.preventDefault();
+        } }
+      >
+        Ordenar
+      </button>
       <div>
         {filterState.appliedFilters.map((item) => (
-          <p
-            data-testid="filter"
-            key={ item.attribute }
-          >
+          <p data-testid="filter" key={ item.attribute }>
             { item.attribute }
             {' '}
             { item.condition }
@@ -225,7 +285,7 @@ function Table() {
         <tbody>
           {filterData.map((planet) => (
             <tr key={ planet.name }>
-              <td>{ planet.name }</td>
+              <td data-testid="planet-name">{ planet.name }</td>
               <td>{ planet.rotation_period }</td>
               <td>{ planet.orbital_period }</td>
               <td>{ planet.diameter }</td>

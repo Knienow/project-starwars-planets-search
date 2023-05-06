@@ -11,6 +11,7 @@ function Provider({ children }) {
     {
       kind: '',
       appliedFilters: [],
+      sortOrder: 'ASC',
     },
   );
 
