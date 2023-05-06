@@ -19,7 +19,6 @@ function Table() {
   ]);
 
   const conditions = (planet, shouldAdd) => {
-    console.log('planet and shouldAdd', planet, shouldAdd);
     const lessOne = -1;
     filterState.appliedFilters.forEach((filter) => {
       if (Number.isNaN(Number(planet[filter.attribute]))) {
@@ -50,7 +49,6 @@ function Table() {
   };
 
   const applyFilter = () => {
-    console.log('applyFilter');
     const tmpData = [];
     const lessOne = -1;
     data.forEach((planet) => {
@@ -87,14 +85,37 @@ function Table() {
       const tmpAttributes = [...attributes];
       tmpAttributes.splice(indexOf, 1);
       setAttributes(tmpAttributes);
-      console.log('dodo esteve aqui', filterState);
     }
     applyFilter();
   };
 
-  const removeThatFilter = () => {
-    // não está funcionando - pesquisar mais sobre como remover o item do array
-    filterState.appliedFilters.splice(0, 1);
+  const addAttributes = (attribute) => {
+    const tmpSetAttributes = [...attributes];
+    tmpSetAttributes.push(attribute);
+    setAttributes(tmpSetAttributes);
+  };
+
+  // botão de remover aquele filtro do array appliedFilters
+  const deleteAppliedFilter = (attributeName) => {
+    const tmpFilters = [...filterState.appliedFilters];
+    if (tmpFilters.length > 0) {
+      const indexOf = tmpFilters.map((item) => item.attribute).indexOf(attributeName);
+      tmpFilters.splice(indexOf, 1);
+      filterState.appliedFilters = tmpFilters;
+      applyFilter();
+      addAttributes(attributeName);
+    }
+    return true;
+  };
+
+  // botão de remover todos os filtros
+  const removeAllFilters = () => {
+    const tmpAttributes = filterState.appliedFilters.map((filter) => filter.attribute);
+    const tmpSetAttributes = [...attributes];
+    tmpAttributes.forEach((attribute) => tmpSetAttributes.push(attribute));
+    setAttributes(tmpSetAttributes);
+    filterState.appliedFilters = [];
+    applyFilter();
   };
 
   return (
@@ -156,14 +177,12 @@ function Table() {
       <button
         data-testid="button-remove-filters"
         type="button"
-        // onClick={ removeAllFilters }
+        onClick={ removeAllFilters }
       >
         Remover filtros
       </button>
       <div>
         {filterState.appliedFilters.map((item) => (
-          // RENDERIZAR O ARRAY DE appliedFilters AQUI COM OS BUTTONS PARA EXCLUIR
-          // melhorar essa lógica - está substituindo ao invés de formar uma lista de filtros aplicados
           <p
             data-testid="filter"
             key={ item.attribute }
@@ -175,7 +194,10 @@ function Table() {
             { item.value }
             <button
               type="delete"
-              onClick={ removeThatFilter }
+              onClick={ (event) => {
+                deleteAppliedFilter(item.attribute);
+                event.preventDefault();
+              } }
             >
               X
             </button>
