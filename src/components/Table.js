@@ -1,41 +1,13 @@
 import React, { useContext, useState, useRef } from 'react';
 import MyContext from '../contexts/MyContext';
+import { conditions } from './Filters';
+import { filterAscDesc } from './Sorts';
 
 function Table() {
   const { data, filterData, setFilterData, filterState } = useContext(MyContext);
 
   const [attributes, setAttributes] = useState(['population', 'orbital_period',
     'diameter', 'rotation_period', 'surface_water']);
-
-  const conditions = (planet, shouldAdd) => {
-    const lessOne = -1;
-    filterState.appliedFilters.forEach((filter) => {
-      if (Number.isNaN(Number(planet[filter.attribute]))) {
-        shouldAdd += lessOne;
-      }
-      switch (filter.condition) {
-      case 'maior que':
-        if (Number(planet[filter.attribute]) <= Number(filter.value)) {
-          shouldAdd += lessOne;
-        }
-        break;
-      case 'menor que':
-        if (Number(planet[filter.attribute]) >= Number(filter.value)) {
-          shouldAdd += lessOne;
-        }
-        break;
-      case 'igual a':
-        if (Number(planet[filter.attribute]) !== Number(filter.value)) {
-          shouldAdd += lessOne;
-        }
-        break;
-      default:
-        console.log('default case');
-        break;
-      }
-    });
-    return shouldAdd;
-  };
 
   const applyFilter = () => {
     const tmpData = [];
@@ -46,15 +18,10 @@ function Table() {
       && !planet.name.toLowerCase().includes(filterState.kind)) {
         shouldAdd += lessOne;
       }
-      shouldAdd = conditions(planet, shouldAdd);
+      shouldAdd = conditions(planet, shouldAdd, filterState);
       if (shouldAdd === 0) { tmpData.push(planet); }
     });
     setFilterData(tmpData);
-  };
-
-  const changeFilterStateKind = (value) => {
-    filterState.kind = value;
-    applyFilter();
   };
 
   const inputAttributeRef = useRef(null);
@@ -96,33 +63,6 @@ function Table() {
     return true;
   };
 
-  const sortAsc = (tmpData, attribute, lessOne) => tmpData.sort((a, b) => {
-    const x = Number.isNaN(Number(a[attribute]))
-      ? Number.POSITIVE_INFINITY : Number(a[attribute]);
-    const y = Number.isNaN(Number(b[attribute]))
-      ? Number.POSITIVE_INFINITY : Number(b[attribute]);
-    return x < y ? lessOne : 1;
-  });
-
-  const sortDesc = (tmpData, attribute, lessOne) => tmpData.sort((a, b) => {
-    const x = Number.isNaN(Number(a[attribute]))
-      ? Number.NEGATIVE_INFINITY : Number(a[attribute]);
-    const y = Number.isNaN(Number(b[attribute]))
-      ? Number.NEGATIVE_INFINITY : Number(b[attribute]);
-    return x < y ? 1 : lessOne;
-  });
-
-  const filterAscDesc = (attribute, order) => {
-    let tmpData = [...filterData];
-    const lessOne = -1;
-    if (order === 'ASC') {
-      tmpData = sortAsc(tmpData, attribute, lessOne);
-    } else if (order === 'DESC') {
-      tmpData = sortDesc(tmpData, attribute, lessOne);
-    }
-    setFilterData(tmpData);
-  };
-
   const removeAllFilters = () => {
     const tmpAttributes = filterState.appliedFilters.map((filter) => filter.attribute);
     const tmpSetAttributes = [...attributes];
@@ -141,15 +81,6 @@ function Table() {
 
   return (
     <div>
-      <header>
-        <h1>Project Star Wars Planets Search</h1>
-        <input
-          type="text"
-          name="filterByName"
-          data-testid="name-filter"
-          onChange={ (event) => changeFilterStateKind(event.target.value) }
-        />
-      </header>
       <label htmlFor="">
         Coluna:
         <select
@@ -194,6 +125,7 @@ function Table() {
         onClick={ removeAllFilters }
       >
         Remover filtros
+
       </button>
       <label htmlFor="">
         Ordenar:
@@ -238,7 +170,12 @@ function Table() {
         type="button"
         data-testid="column-sort-button"
         onClick={ (event) => {
-          filterAscDesc(sortAttributeRef.current.value, filterState.sortOrder);
+          filterAscDesc(
+            sortAttributeRef.current.value,
+            filterState.sortOrder,
+            filterData,
+            setFilterData,
+          );
           event.preventDefault();
         } }
       >
@@ -247,11 +184,7 @@ function Table() {
       <div>
         {filterState.appliedFilters.map((item) => (
           <p data-testid="filter" key={ item.attribute }>
-            { item.attribute }
-            {' '}
-            { item.condition }
-            {' '}
-            { item.value }
+            { item.attribute + item.condition + item.value }
             <button
               type="delete"
               onClick={ (event) => {
