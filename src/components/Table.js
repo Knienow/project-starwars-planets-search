@@ -184,7 +184,11 @@ function Table() {
       <div>
         {filterState.appliedFilters.map((item) => (
           <p data-testid="filter" key={ item.attribute }>
-            { item.attribute + item.condition + item.value }
+            { item.attribute }
+            {' '}
+            { item.condition }
+            {' '}
+            { item.value }
             <button
               type="delete"
               onClick={ (event) => {
